@@ -1,6 +1,6 @@
 {
   "name": "graspify",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Transform code via grasp",
   "main": "index.js",
   "directories": {
