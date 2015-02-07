@@ -1,6 +1,48 @@
-# graspify
+# graspify [![Build Status](https://travis-ci.org/dfcreative/graspify.svg?branch=master)](https://travis-ci.org/dfcreative/graspify) [![Code Climate](https://codeclimate.com/github/dfcreative/graspify/badges/gpa.svg)](https://codeclimate.com/github/dfcreative/graspify)
 
-Browserify transform to make any possible source code transformations via graspify. Can serve as a replacement for point transforms.
+Browserify transform to make modules transforms via [grasp](http://www.graspjs.com/). Basically, it allows to make almost any source code transforms.
+
+[image]
+
+
+## Installing
+
+`$ npm install --save-dev graspify`
+
+
+## Usage
+
+Use graspify as a simple browserify transform, passing [grasp CLI arguments](http://www.graspjs.com/docs/options/) to it:
+
+`$ browserify -t [ graspify '#myVariable' -R 'myVar' ] index.js`
+
+Sometimes it is handy to perform global transform:
+
+`$ browserify -g [ graspify '#myVariable' -R 'myVar' ] index.js`.
+
+
+You can define multiple replacements in **package.json**:
+
+```json
+{
+  "main": "./index.js",
+  "graspify": {
+    "replace": {
+      "__ + __": "{{.l}} - {{.r}}",
+      "#myVar": ["myVariable", "squery"]
+    }
+  },
+  "browserify": {
+    "transform": "graspify"
+  }
+  "dependencies": {
+    "graspify": "^0.0.1"
+  }
+}
+```
+
+
+## Use cases
 
 There is a huge amount of use-cases where grasp can be handy:
 
@@ -19,34 +61,6 @@ There is a huge amount of use-cases where grasp can be handy:
 * Remove code parts you don’t need anymore, like `module.exports.extraMethod` → ` `.
 * Serve as a replacement for [replace-method](https://github.com/hughsk/replace-method).
 
-## Installing
-
-`$ npm install graspify`
 
 
-## Use
-
-Use graspify as a simple browserify transform, passing [grasp CLI arguments](http://www.graspjs.com/docs/options/) to it:
-
-`$ browserify -t [ graspify '#myVariable' -R 'myVar' ] index.js`
-
-You can also set up a **package.json**:
-
-```json
-{
-  "main": "./js/entry.js",
-  "browser": {
-    "jquery": "./js/vendor/jquery.js"
-  },
-  "graspify": {
-    "jquery": "$",
-    "three": "global:THREE"
-  },
-  "browserify": {
-    "transform": [ "graspify" ]
-  },
-  "dependencies": {
-    "graspify": "^0.0.1"
-  }
-}
-```
+[![NPM](https://nodei.co/npm/graspify.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/graspify/)

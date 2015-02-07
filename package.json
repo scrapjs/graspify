@@ -19,7 +19,7 @@
     "browserify-transform",
     "graspify",
     "ast",
-    "transfotm",
+    "transform",
     "recast",
     "replace"
   ],
