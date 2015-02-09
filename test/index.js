@@ -26,6 +26,7 @@ describe('Cases', function(){
 		});
 	});
 
+
 	it('aliasify', function(){
 		var file = path.resolve(__dirname, './case/aliasify.js');
 		var content = rfile(file);
@@ -43,6 +44,23 @@ describe('Cases', function(){
 				if (err) throw err;
 
 				assert.equal(transformed, "var x = require('./3');");
+			}
+		);
+	});
+
+
+	it.skip('deconsole', function(){
+		var file = path.resolve(__dirname, './case/deconsole.js');
+		var content = rfile(file);
+
+		graspify.setConfig(["console:_", "function(){}"]);
+
+		transformTools.runTransform(graspify, file, {content: content},
+			function(err, transformed) {
+				console.log(transformed)
+				if (err) throw err;
+
+				assert.equal(transformed, "var a = 1;");
 			}
 		);
 	});

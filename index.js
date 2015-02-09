@@ -21,7 +21,15 @@ var options = {
 module.exports = transformTools.makeStringTransform("graspify", options,
 	function (content, opts, done) {
 		try {
-			//get a list of replacements by merging opts & config
+			//normalize plain replacements
+			if (opts.opts && typeof opts.opts[0] === 'string') {
+				opts.opts = [opts.opts];
+			}
+			if (opts.config && typeof opts.config[0] === 'string') {
+				opts.config = [opts.config];
+			}
+
+			//merge opts & config for the full list of replacements
 			[].concat(opts.opts || [], opts.config || [])
 
 			//apply each replacement
