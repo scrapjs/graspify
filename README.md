@@ -18,14 +18,16 @@ Define replacements in **package.json**:
   "main": "./index.js",
   "graspify": [
     ["equery", "__ + __", "{{.l}} - {{.r}}"],
-    ["squery", "#myVar", "myVariable"],
-    ["file", "./selector.js", "x"]
+    ["squery", "#myVar", "myVariable"]
   ],
   "dependencies": {
     "graspify": "^0.0.1"
   }
 }
 ```
+
+Each replacement represents arguments for [`grasp.replace`](http://www.graspjs.com/docs/lib#replace).
+
 
 Run graspify transform:
 
@@ -39,7 +41,13 @@ Sometimes it is handy to perform global transform, to affect nested modules:
 
 ## API
 
-Graspify can be used programmatically. It takes the same arguments as [`grasp.replace`](http://www.graspjs.com/docs/lib#replace):
+Graspify can be used programmatically:
+
+```js
+b.transform(graspify, replacements);
+```
+
+Pass `replacements` as a second optional argument. It will be merged with the ones defined in `package.json`.
 
 ```js
 var browserify = require('browserify');
