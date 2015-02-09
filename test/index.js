@@ -26,7 +26,7 @@ describe('Cases', function(){
 		});
 	});
 
-	it('aliasify', function(done){
+	it('aliasify', function(){
 		var file = path.resolve(__dirname, './case/aliasify.js');
 		var content = rfile(file);
 
