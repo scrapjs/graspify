@@ -1,7 +1,7 @@
 {
   "name": "graspify",
   "version": "2.0.1",
-  "description": "Transform code via grasp",
+  "description": "Browserify transform to replace code via grasp",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -14,8 +14,8 @@
     "url": "https://github.com/dfcreative/graspify/"
   },
   "keywords": [
-    "grasp",
     "browserify",
+    "grasp",
     "browserify-transform",
     "graspify",
     "ast",
