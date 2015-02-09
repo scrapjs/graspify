@@ -11,14 +11,7 @@ Browserify transform making source code replacements using [grasp.replace](http:
 
 ## Usage
 
-`$ browserify -t graspify index.js`
-
-Sometimes it is handy to perform global transform, to affect nested modules:
-
-`$ browserify -g graspify index.js`.
-
-
-Define multiple replacements in **package.json** via `graspify` option:
+Define replacements in **package.json**:
 
 ```json
 {
@@ -28,41 +21,45 @@ Define multiple replacements in **package.json** via `graspify` option:
     ["squery", "#myVar", "myVariable"],
     ["file", "./selector.js", "x"]
   ],
-  "browserify": {
-    "transform": "graspify"
-  },
   "dependencies": {
     "graspify": "^0.0.1"
   }
 }
 ```
 
+Run graspify transform:
+
+`$ browserify -t graspify index.js`
+
+Sometimes it is handy to perform global transform, to affect nested modules:
+
+`$ browserify -g graspify index.js`.
+
+
 
 ## API
 
-Graspify can be also used programmatically. It takes the same arguments as [`grasp.replace`](http://www.graspjs.com/docs/lib#replace):
-
-```js
-graspify(<selectorType>, <selector>, <replacement>);
-```
-
-For example:
+Graspify can be used programmatically. It takes the same arguments as [`grasp.replace`](http://www.graspjs.com/docs/lib#replace):
 
 ```js
 var browserify = require('browserify');
 var b = browserify('./entry.js');
 var graspify = require('graspify');
 
-b.transform(graspify("squery", "#myVar", "myVar"))
-.transform(graspify("equery", "__ + __", "{{.r}} + {{.l}}"))
-.transform(graspify("equery", "require($module)", function(){
-  return "require('stub')"
-}))
+b.transform(graspify, [
+  ["squery", "#myVar", "myVariable"],
+  ["equery", "__ + __", "{{.r}} + {{.l}}"],
+
+  //you can also pass a replacement funtion
+  ["equery", "require($module)", function(){
+    return "require('stub')"
+  }]
+])
 ```
 
 
 
-## Common replacements
+## Use-cases
 
 There is a huge amount of use cases where grasp can be useful.
 
