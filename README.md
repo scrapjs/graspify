@@ -1,8 +1,7 @@
 # graspify [![Build Status](https://travis-ci.org/dfcreative/graspify.svg?branch=master)](https://travis-ci.org/dfcreative/graspify) [![Code Climate](https://codeclimate.com/github/dfcreative/graspify/badges/gpa.svg)](https://codeclimate.com/github/dfcreative/graspify)
 
-Browserify transform to make modules transforms via [grasp](http://www.graspjs.com/). Basically, it allows to make almost any source code transforms.
+Browserify transform making source code replacements using [grasp.replace](http://www.graspjs.com/).
 
-[image]
 
 
 ## Installing
@@ -12,29 +11,26 @@ Browserify transform to make modules transforms via [grasp](http://www.graspjs.c
 
 ## Usage
 
-Use graspify as a simple browserify transform, passing [grasp CLI arguments](http://www.graspjs.com/docs/options/) to it:
+`$ browserify -t graspify index.js`
 
-`$ browserify -t [ graspify '#myVariable' -R 'myVar' ] index.js`
+Sometimes it is handy to perform global transform, to affect nested modules:
 
-Sometimes it is handy to perform global transform:
-
-`$ browserify -g [ graspify '#myVariable' -R 'myVar' ] index.js`.
+`$ browserify -g graspify index.js`.
 
 
-You can define multiple replacements in **package.json**:
+Define multiple replacements in **package.json** via `graspify` option:
 
 ```json
 {
   "main": "./index.js",
-  "graspify": {
-    "replace": {
-      "__ + __": "{{.l}} - {{.r}}",
-      "#myVar": ["myVariable", "squery"]
-    }
-  },
+  "graspify": [
+    ["equery", "__ + __", "{{.l}} - {{.r}}"],
+    ["squery", "#myVar", "myVariable"],
+    ["file", "./selector.js", "x"]
+  ],
   "browserify": {
     "transform": "graspify"
-  }
+  },
   "dependencies": {
     "graspify": "^0.0.1"
   }
@@ -42,24 +38,220 @@ You can define multiple replacements in **package.json**:
 ```
 
 
-## Use cases
+## API
 
-There is a huge amount of use-cases where grasp can be handy:
+Graspify can be also used programmatically. It takes the same arguments as [`grasp.replace`](http://www.graspjs.com/docs/lib#replace):
 
-* Replacement for [aliasify](https://github.com/benbria/aliasify) as a global-transform, e. g. `require('module-a')` → `require('module-b')`
-* Remove all [console.log](https://www.npmjs.com/package/deconsole)s.
-* Remove [debug](https://www.npmjs.com/package/debug) module (which causes extra 4kb of gzipped code to bundle).
-* Provide shims for any browser built-ins in node, like `document` → `require('dom-lite').document`.
-* Create optimized jQuery builds of components utilizing jQuery functions instead of components, e. g. `var css = require('component-css')` → `var css = $.css`.
-* Polyfill features: `WeakMap` → `WeakMap = require('weakmap-shim');`, though [requiring polyfills is not recommended](http://webreflection.blogspot.ru/2014/03/do-not-require-polyfills.html?spref=tw). It is better to use side polyfills for that, like [autopolyfiller](https://www.npmjs.com/package/autopolyfiller).
-* Merge analogous modules, e. g. `Emitter = require('component-emitter')` → `Emitter = require('events').EventEmitter` (useful as a global transform). There’re lots of [package-analogs](https://github.com/dfcreative/package-analogs).
-* Replace common code clones for better minimizing efficiency, e. g. `document.documentElement` × 12 → `var root = document.documentElement` + `doc`.
-* Prepend/append additional code definitions, like jQuery-plugin definition: `$.fn.{{ name }} = function(){...}`
-* Normalize common code constructions, e. g. `var Y.prototype = Object.create(X.prototype)` → `inherit(X, Y);` or `extend(a, b)` → `Object.assign(a, b)`.
-* Exclude jQuery/vendor dependencies, e. g. `$.css()` → `var css = require('component-css');` + `css()`.
-* Remove pointless constructions, like `try {$1} catch () {$2}` → `$1`. Solves in general tasks of [remove-catch-require](https://github.com/hughsk/remove-catch-require) and [remove-try-require](https://github.com/hughsk/remove-try-require).
-* Remove code parts you don’t need anymore, like `module.exports.extraMethod` → ` `.
-* Serve as a replacement for [replace-method](https://github.com/hughsk/replace-method).
+```js
+graspify(<selectorType>, <selector>, <replacement>);
+```
+
+For example:
+
+```js
+var browserify = require('browserify');
+var b = browserify('./entry.js');
+var graspify = require('graspify');
+
+b.transform(graspify("squery", "#myVar", "myVar"))
+.transform(graspify("equery", "__ + __", "{{.r}} + {{.l}}"))
+.transform(graspify("equery", "require($module)", function(){
+  return "require('stub')"
+}))
+```
+
+
+
+## Common replacements
+
+There is a huge amount of use cases where grasp can be useful.
+
+### Replace require callse, like [aliasify](https://github.com/benbria/aliasify)
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+["squery", "#require[callee=./2]", ""],
+["squery", "#require[callee=./2.js]", ""]
+```
+
+
+###  Remove `console.log`s, like [deconsole](https://www.npmjs.com/package/deconsole)
+
+Equery:
+
+```js
+[]
+```
+
+Squery:
+
+```js
+["equery", "console.log", ""]
+```
+
+
+### Remove [debug](https://www.npmjs.com/package/debug) package (which causes extra 4kb of gzipped code).
+
+TODO: debug might be assigned to other variable (not debug), consider more complicated selector.
+
+Equery:
+
+```js
+["equery", "debug(_$)", ""],
+["equery", "require[callee~=/debug[\'\"]$/]", "''"]
+```
+
+Squery:
+
+```js
+[]
+```
+
+
+### Provide shims for browser built-in in node, like `document` → `require('dom-lite').document`.
+
+```js
+{
+  "before": "var document = require('dom-lite').document;\n"
+}
+```
+
+
+### Create optimized jQuery builds of components utilizing jQuery functions instead of components, e. g. `var css = require('component-css')` → `var css = $.css`.
+
+Equery:
+
+```js
+[]
+```
+
+Squery:
+
+```js
+```
+
+
+### Polyfill features: `WeakMap` → `WeakMap = require('weakmap-shim');`, though [requiring polyfills is not recommended](http://webreflection.blogspot.ru/2014/03/do-not-require-polyfills.html?spref=tw). It is better to use side polyfills for that, like [autopolyfiller](https://www.npmjs.com/package/autopolyfiller).
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Merge analogous modules, e. g. `Emitter = require('component-emitter')` → `Emitter = require('events').EventEmitter` (useful as a global transform). There’re lots of [package-analogs](https://github.com/dfcreative/package-analogs).
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Replace common code clones for better minimizing efficiency, e. g. `document.documentElement` × 12 → `var root = document.documentElement` + `doc`.
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Prepend/append additional code definitions, like jQuery-plugin definition: `$.fn.{{ name }} = function(){...}`.
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Normalize common code constructions, e. g. `var Y.prototype = Object.create(X.prototype)` → `inherit(X, Y);` or `extend(a, b)` → `Object.assign(a, b)`.
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Exclude jQuery/vendor dependencies, e. g. `$.css()` → `var css = require('component-css');` + `css()`.
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Remove pointless constructions, like `try {$1} catch () {$2}` → `$1`. Solves in general tasks of [remove-catch-require](https://github.com/hughsk/remove-catch-require) and [remove-try-require](https://github.com/hughsk/remove-try-require).
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Remove code parts you don’t need anymore, like `module.exports.extraMethod` → ` `.
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
+
+
+### Replace all method calls, as [replace-method](https://github.com/hughsk/replace-method).
+
+Equery:
+
+```js
+```
+
+Squery:
+
+```js
+```
 
 
 

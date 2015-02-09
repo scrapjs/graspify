@@ -30,7 +30,8 @@
     "grasp": "~0.2.1"
   },
   "devDependencies": {
-    "mocha": "~2.1.0",
-    "rfile": "~1.0.0"
+    "mocha": "^2.1.0",
+    "rfile": "^1.0.0",
+    "browserify": "~8.1.3"
   }
 }

@@ -3,30 +3,62 @@ var graspify = require('..');
 var rfile = require('rfile');
 var path = require('path');
 var assert = require('assert');
+var browserify = require('browserify');
 
-describe('Graspify cases', function(){
-	it('aliasify', function(){
-		var filePath = path.resolve(__dirname, './example/aliasify.js');
-		var content = rfile(filePath);
+
+describe('Cases', function(){
+	it.only('reading options', function(done){
+		var file = path.resolve(__dirname, './case/aliasify.js');
+		graspify.setConfig([
+			['require("./2")', 'require("./2-stub")']
+		]);
+
+		var b = browserify();
+		b.add(file);
+		b.transform(graspify, [
+			["require('./2.js')", "require('./2-stub.js')"]
+		]);
+
+
+		//Run transform for all deps
+		b.bundle(function(err, src) {
+			if (err) throw err;
+			process.stdout.write(src);
+			done();
+		});
+	});
+
+	it.skip('aliasify', function(done){
+		var content = rfile(file);
 
 		graspify.setConfig({
 			"replace": {
-				"require('./2')": "require('./3')",
-				"require('./2.js')": "require('./3')"
+				"require('./2')": "require('./2-stub')",
+				"require('./2.js')": "require('./2-stub')"
 			}
 		});
 
-		transformTools.runTransform(
-			graspify,
-			filePath,
-			{content: content},
-			function(err, transformed) {
-				if (err) throw err;
+		var b = browserify();
+		b.add(file);
+		b.transform(graspify);
 
-				assert.equal(transformed, "var x = require('./3');")
-				// assert.equal(transformed, properContent);
-				// Verify transformed is what we expect...
-			}
-		);
+		//Run transform for all deps
+		b.bundle(function(err, src) {
+			process.stdout.write(src);
+			done();
+		});
+
+
+		//Run transform for a single module
+		// transformTools.runTransform(
+		// 	graspify,
+		// 	file,
+		// 	{content: content},
+		// 	function(err, transformed) {
+		// 		if (err) throw err;
+
+		// 		assert.equal(transformed, "var x = require('./3');");
+		// 	}
+		// );
 	});
 });
