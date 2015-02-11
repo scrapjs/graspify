@@ -38,7 +38,7 @@ module.exports = transformTools.makeStringTransform("graspify", options,
 				var selector = args[0];
 				var replacement = args[1];
 
-				content = grasp.replace(selectorType, selector, replacement, content)[0];
+				content = grasp.replace(selectorType, selector, replacement, content);
 			});
 
 			done(null, content);
