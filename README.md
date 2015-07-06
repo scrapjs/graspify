@@ -19,10 +19,6 @@ This is a clone from [graspify@2.0.3](https://www.npmjs.com/package/graspify), w
 Graspify can be used programmatically:
 
 ```js
-b.transform(graspify2, opts);
-```
-
-```js
 var browserify = require('browserify');
 var b = browserify('./entry.js');
 var graspify = require('graspify2');
