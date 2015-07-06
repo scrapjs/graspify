@@ -10,10 +10,6 @@ This is a clone from [graspify@2.0.3](https://www.npmjs.com/package/graspify), w
 `$ npm install --save-dev graspify2`
 
 
-## Usage
-
-*NOT* support defining replacements in **package.json**
-
 ## API
 
 Graspify can be used programmatically:
