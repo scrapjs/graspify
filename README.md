@@ -9,10 +9,23 @@ This is a clone from [graspify@2.0.3](https://www.npmjs.com/package/graspify), w
 
 `$ npm install --save-dev graspify2`
 
+## package.json
+
+Replace `DEBUG` with `false`
+
+```json
+{
+  "browserify": {
+    "transform":[
+      ["graspify2", { "patterns": ["squery", "#DEBUG", "false"] }]
+    ]
+  }
+}
+```
 
 ## API
 
-Graspify can be used programmatically:
+Also can be used programmatically:
 
 ```js
 var browserify = require('browserify');
@@ -30,3 +43,12 @@ b.transform(graspify, {
     ]
 })
 ```
+
+### options
+
+#### patterns
+
+Type: `Array`
+
+Each replacing rule is denoted by a triplet.
+If more than one rules specified, `.patterns` should be something like the example in `API`.
