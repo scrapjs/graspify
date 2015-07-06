@@ -1,37 +1,37 @@
 {
-  "name": "graspify",
-  "version": "2.0.3",
+  "name": "graspify2",
+  "version": "0.0.1",
   "description": "Browserify transform to replace code via grasp",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
+  "dependencies": {
+    "browserify-transform-tools": "^1.4.2",
+    "grasp": "^0.3.0"
+  },
+  "devDependencies": {
+    "sink-transform": "^0.1.4",
+    "tape": "^4.0.0"
+  },
   "scripts": {
-    "test": "mocha"
+    "test": "tape test/*.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dfcreative/graspify/"
+    "url": "git+https://github.com/zoubin/graspify2.git"
   },
   "keywords": [
     "browserify",
-    "grasp",
     "browserify-transform",
+    "grasp",
     "graspify",
-    "ast",
-    "transform",
-    "recast",
     "replace"
   ],
-  "author": "Deema Ywanov <dfcreative@gmail.com>",
-  "license": "Unlicensed",
-  "dependencies": {
-    "browserify-transform-tools": "^1.3.0",
-    "grasp": "^0.3"
+  "author": "zoubin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zoubin/graspify2/issues"
   },
-  "devDependencies": {
-    "mocha": "^2.1.0",
-    "rfile": "^1.0.0",
-    "browserify": "^8.1.3"
-  }
+  "homepage": "https://github.com/zoubin/graspify2#readme"
 }
