@@ -1,67 +1,55 @@
 var transformTools = require('browserify-transform-tools');
 var graspify = require('..');
-var rfile = require('rfile');
+var test = require('tape');
+var sink = require('sink-transform');
 var path = require('path');
-var assert = require('assert');
-var browserify = require('browserify');
+var fs = require('fs');
 
+function fixtures() {
+    return path.resolve
+        .bind(path, __dirname, 'fixtures')
+        .apply(null, arguments);
+}
 
-describe('Cases', function(){
-	it('reading options', function(done){
-		var file = path.resolve(__dirname, './case/aliasify.js');
-		graspify.setConfig([
-			['require("./2")', 'require("./2-stub")']
-		]);
+test('reading options', function(t){
+    t.plan(1);
 
-		var b = browserify();
-		b.add(file);
-		b.transform(graspify, [
-			["require('./2.js')", "require('./2-stub.js')"]
-		]);
+    var file = fixtures('bundle.js');
 
-		b.bundle(function(err, src) {
-			if (err) throw err;
-			// process.stdout.write(src);
-			done();
-		});
-	});
+    var tr = graspify(file, {
+        patterns: ["require('./2.js')", "require('./2-stub.js')"]
+    })
 
-
-	it('aliasify', function(){
-		var file = path.resolve(__dirname, './case/aliasify.js');
-		var content = rfile(file);
-
-		graspify.setConfig([
-			["require('./2')", "require('./3')"],
-			["require('./2.js')", "require('./3')"]
-		]);
-
-		transformTools.runTransform(
-			graspify,
-			file,
-			{content: content},
-			function(err, transformed) {
-				if (err) throw err;
-
-				assert.equal(transformed, "var x = require('./3');");
-			}
-		);
-	});
-
-
-	it.skip('deconsole', function(){
-		var file = path.resolve(__dirname, './case/deconsole.js');
-		var content = rfile(file);
-
-		graspify.setConfig(["console:_", "function(){}"]);
-
-		transformTools.runTransform(graspify, file, {content: content},
-			function(err, transformed) {
-				console.log(transformed)
-				if (err) throw err;
-
-				assert.equal(transformed, "var a = 1;");
-			}
-		);
-	});
+    fs.createReadStream(file)
+        .pipe(tr)
+        .pipe(sink.str(function (body, done) {
+            t.equal(body, 'var x = require(\'./2-stub.js\');');
+            done();
+        }));
 });
+
+
+test('aliasify', function(t){
+    t.plan(1);
+    var file = fixtures('aliasify.js');
+    var content = fs.readFileSync(file).toString('utf8');
+
+    graspify.setConfig({
+        patterns: [
+            ["require('./2')", "require('./3')"],
+            ["require('./2.js')", "require('./3')"]
+        ]
+    });
+
+    transformTools.runTransform(
+        graspify,
+        file,
+        {content: content},
+        function(err, transformed) {
+            if (err) throw err;
+
+            t.equal(transformed, "var x = require('./3');");
+        }
+    );
+});
+

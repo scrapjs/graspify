@@ -52,4 +52,4 @@ lsn
 *._[0-9]
 *.ns
 Scripting_*
-*.pak
+*.pak/node_modules/
